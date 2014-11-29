@@ -1,2 +1,3 @@
 bin
-WorkingWithDepthData.suo
+*.suo
+obj
