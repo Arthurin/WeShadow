@@ -216,9 +216,8 @@ namespace WorkingWithDepthData
                 return;
 
             //turn on features that you need
-            sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
             sensor.SkeletonStream.Enable();
-            sensor.ColorStream.Enable();
 
             //sign up for events if you want to get at API directly
             sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
@@ -232,6 +231,16 @@ namespace WorkingWithDepthData
         }
 
         private void image3_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+
+        }
+
+        private void kinectSensorChooser1_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void image1_ImageFailed(object sender, ExceptionRoutedEventArgs e)
         {
 
         } 
