@@ -51,23 +51,9 @@ namespace WorkingWithDepthData
 
             //get the new sensor
             var newSensor = (KinectSensor)e.NewValue;
-            if (newSensor == null)
-            {
-                return;
-            }
-
-            //turn on features that you need
-            newSensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-            newSensor.SkeletonStream.Enable();
-            newSensor.ColorStream.Enable(); 
-
-            //sign up for events if you want to get at API directly
-            newSensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
-
-
             try
             {
-                newSensor.Start();
+                StartKinect(newSensor);
             }
             catch (System.IO.IOException)
             {
@@ -222,6 +208,22 @@ namespace WorkingWithDepthData
 
                 }
             }
+        }
+
+        private void StartKinect(KinectSensor sensor)
+        {
+            if (sensor == null)
+                return;
+
+            //turn on features that you need
+            sensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            sensor.SkeletonStream.Enable();
+            sensor.ColorStream.Enable();
+
+            //sign up for events if you want to get at API directly
+            sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
+
+            sensor.Start();
         }
 
         private void kinectColorViewer1_Loaded(object sender, RoutedEventArgs e)
