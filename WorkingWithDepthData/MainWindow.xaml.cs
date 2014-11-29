@@ -156,12 +156,13 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + GreenIndex] = 0;
                     pixels[colorIndex + RedIndex] = 0;
 
-                    /*
+                    
                     if (isNearPoint(x,y, birdPositionX, birdPositionY))
                     {
                         this.birdFly.Visibility = Visibility.Visible;
-                        System.Diagnostics.Debug.Write(".");
-                    }*/
+                        this.birdStatic.Visibility = Visibility.Hidden;
+                        //System.Diagnostics.Debug.Write(".");
+                    }
                 }
                 else
                 {
@@ -206,7 +207,7 @@ namespace WorkingWithDepthData
         {
             //System.Diagnostics.Debug.WriteLine("Point detection: ");
             //System.Diagnostics.Debug.WriteLine(p);
-            return (pointPositionX - 80 <= x && x >= pointPositionX + 80) && (pointPositionY - 80 <= y && y >= pointPositionY + 80);
+            return (pointPositionX - 80 <= x && x <= pointPositionX + 80) && (pointPositionY - 80 <= y && y <= pointPositionY + 80);
         }
 
 
