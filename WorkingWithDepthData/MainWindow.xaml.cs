@@ -17,7 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
-using System.Diagnostics; 
+using System.Diagnostics;
+using WpfAnimatedGif; 
 
 namespace WorkingWithDepthData
 {
@@ -26,14 +27,26 @@ namespace WorkingWithDepthData
     /// </summary>
     public partial class MainWindow : Window
     {
+        int birdPositionX = 500;
+        int birdPositionY = 50;
+
         public MainWindow()
         {
             InitializeComponent();
-        }
+            Canvas.SetLeft(this.birdStatic, 500);
+            Canvas.SetBottom(this.birdStatic, 50);
 
+            this.birdFly.Visibility = Visibility.Hidden;
+
+            System.Diagnostics.Debug.WriteLine("coucou");
+
+           
+            //ImageBehavior.SetAnimatedSource(birdImage, image);
+        }
         const float MaxDepthDistance = 4095; // max value returned
         const float MinDepthDistance = 850; // min value returned
         const float MaxDepthDistanceOffset = MaxDepthDistance - MinDepthDistance;
+        
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -106,6 +119,8 @@ namespace WorkingWithDepthData
             const int BlueIndex = 0;
             const int GreenIndex = 1;
             const int RedIndex = 2;
+            int x = 0;
+            int y = 0;
 
             
             //loop through all distances
@@ -114,6 +129,12 @@ namespace WorkingWithDepthData
                 depthIndex < rawDepthData.Length && colorIndex < pixels.Length; 
                 depthIndex++, colorIndex += 4)
             {
+                x++;
+                if (x == depthFrame.Width)
+                {
+                    y++;
+                    x = 0;
+                }
                 //get the player (requires skeleton tracking enabled for values)
                 int player = rawDepthData[depthIndex] & DepthImageFrame.PlayerIndexBitmask;
 
@@ -128,26 +149,21 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + RedIndex] = 255;
 
                 }
-
-                //.9M or 2.95'
-                else if (depth <= 900)
-                {
-                    //we are very close
-                    pixels[colorIndex + BlueIndex] = 0;
-                    pixels[colorIndex + GreenIndex] = 0;
-                    pixels[colorIndex + RedIndex] = 0;
-
-                }
-                // .9M - 2M or 2.95' - 6.56'
-                else if (depth > 900 && depth < 2000)
+                else if (depth > 0 && depth < 2500)
                 {
                     //we are a bit further away
                     pixels[colorIndex + BlueIndex] = 0;
                     pixels[colorIndex + GreenIndex] = 0;
                     pixels[colorIndex + RedIndex] = 0;
+
+                    /*
+                    if (isNearPoint(x,y, birdPositionX, birdPositionY))
+                    {
+                        this.birdFly.Visibility = Visibility.Visible;
+                        System.Diagnostics.Debug.Write(".");
+                    }*/
                 }
-                // 2M+ or 6.56'+
-                else if (depth > 2500)
+                else
                 {
                     //we are the farthest
                     pixels[colorIndex + BlueIndex] = 255;
@@ -171,10 +187,26 @@ namespace WorkingWithDepthData
                 //    pixels[colorIndex + RedIndex] = Colors.Black.R;
                 //}
 
+                /*
+                if ((x >= 100 && x <= 200) && (y >= 100 && y <= 150))
+                {
+                    pixels[colorIndex + BlueIndex] = 0;
+                    pixels[colorIndex + GreenIndex] = 0;
+                    pixels[colorIndex + RedIndex] = 255;
+                }*/
+
+
             }
           
 
             return pixels;
+        }
+
+        private bool isNearPoint(int x, int y, int pointPositionX, int pointPositionY)
+        {
+            //System.Diagnostics.Debug.WriteLine("Point detection: ");
+            //System.Diagnostics.Debug.WriteLine(p);
+            return (pointPositionX - 80 <= x && x >= pointPositionX + 80) && (pointPositionY - 80 <= y && y >= pointPositionY + 80);
         }
 
 
