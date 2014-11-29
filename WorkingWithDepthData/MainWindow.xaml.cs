@@ -229,6 +229,11 @@ namespace WorkingWithDepthData
         private void kinectColorViewer1_Loaded(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void image3_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+
         } 
 
 
