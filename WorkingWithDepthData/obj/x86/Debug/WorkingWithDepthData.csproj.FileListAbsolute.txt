@@ -52,3 +52,20 @@ Z:\0 - Informatique\Kinect Project\KinectforWindowsSDKV1\4.Working With Depth Da
 Z:\0 - Informatique\Kinect Project\KinectforWindowsSDKV1\4.Working With Depth Data\WorkingWithDepthData\WorkingWithDepthData\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
 Z:\0 - Informatique\Kinect Project\KinectforWindowsSDKV1\4.Working With Depth Data\WorkingWithDepthData\WorkingWithDepthData\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
 Z:\0 - Informatique\Kinect Project\KinectforWindowsSDKV1\4.Working With Depth Data\WorkingWithDepthData\WorkingWithDepthData\bin\Debug\WorkingWithDepthData.exe.config
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\WorkingWithDepthData.exe.config
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\WorkingWithDepthData.exe
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\WorkingWithDepthData.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.dll
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\Microsoft.Expression.Drawing.dll
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\Coding4Fun.Kinect.Wpf.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Debug\Microsoft.Samples.Kinect.WpfViewers.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.csprojResolveAssemblyReference.cache
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\MainWindow.baml
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\MainWindow.g.cs
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\App.g.cs
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData_MarkupCompile.cache
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.g.resources
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.Properties.Resources.resources
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.csproj.GenerateResource.Cache
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.exe
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Debug\WorkingWithDepthData.pdb

@@ -71,3 +71,17 @@ Z:\0 - Informatique\Kinect Project\KinectforWindowsSDKV1\4.Working With Depth Da
 Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\WorkingWithDepthData.exe.config
 Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.exe
 Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\WorkingWithDepthData.exe
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\WorkingWithDepthData.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\Microsoft.Samples.Kinect.WpfViewers.dll
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\Microsoft.Expression.Drawing.dll
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\Coding4Fun.Kinect.Wpf.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\bin\Release\Microsoft.Samples.Kinect.WpfViewers.pdb
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.csprojResolveAssemblyReference.cache
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\MainWindow.baml
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\MainWindow.g.cs
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\App.g.cs
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData_MarkupCompile.cache
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.g.resources
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.Properties.Resources.resources
+Z:\GitHub\WeShadow\WorkingWithDepthData\obj\x86\Release\WorkingWithDepthData.csproj.GenerateResource.Cache
