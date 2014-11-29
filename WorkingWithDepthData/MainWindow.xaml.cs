@@ -47,11 +47,7 @@ namespace WorkingWithDepthData
             var oldSensor = (KinectSensor)e.OldValue;
 
             //stop the old sensor
-            if (oldSensor != null)
-            {
-                oldSensor.Stop();
-                oldSensor.AudioSource.Stop();
-            }
+            StopKinect(oldSensor);
 
             //get the new sensor
             var newSensor = (KinectSensor)e.NewValue;
