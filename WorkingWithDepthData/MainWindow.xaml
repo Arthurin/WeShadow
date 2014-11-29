@@ -5,9 +5,9 @@
         xmlns:my="clr-namespace:Microsoft.Samples.Kinect.WpfViewers;assembly=Microsoft.Samples.Kinect.WpfViewers"
         xmlns:gif="http://wpfanimatedgif.codeplex.com" Width="640" Height="480" SizeToContent="WidthAndHeight">
     <Grid Height="480" Width="640" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <my:KinectSensorChooser Name="kinectSensorChooser1" Loaded="kinectSensorChooser1_Loaded" HorizontalAlignment="Center" Width="Auto" Margin="-10,-27,10,27" VerticalAlignment="Center" />
         <Image HorizontalAlignment="Center" Name="image1" Stretch="None" VerticalAlignment="Center" ImageFailed="image1_ImageFailed" Width="640" Height="480" Margin="0" />
         <my:KinectSkeletonViewer Canvas.Left="0" Canvas.Top="0" Name="kinectSkeletonViewer1" Height="480" Width="640" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
+        <my:KinectSensorChooser Name="kinectSensorChooser1" Loaded="kinectSensorChooser1_Loaded" HorizontalAlignment="Center" Width="Auto" Margin="-10,-27,10,27" VerticalAlignment="Center" />
         <Canvas>
             <Image Height="67" HorizontalAlignment="Right" Name="birdStatic" Stretch="Fill" VerticalAlignment="Bottom" Width="72" Source="/WorkingWithDepthData;component/Images/bird1.png" Margin="0,0,0,291" />
           <Image Height="67" HorizontalAlignment="Left" Name="birdFly" Stretch="Fill" VerticalAlignment="Top" Width="72" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/animated1.gif" Visibility="Visible" ImageFailed="image3_ImageFailed" Margin="500,42,0,0" />
