@@ -156,12 +156,12 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + GreenIndex] = 0;
                     pixels[colorIndex + RedIndex] = 0;
 
-                    
-                    if (isNearPoint(x,y, birdPositionX, birdPositionY))
+
+                    if (this.birdStatic.Visibility == Visibility.Visible && isNearPoint(x, y, birdPositionX, birdPositionY))
                     {
                         this.birdFly.Visibility = Visibility.Visible;
                         this.birdStatic.Visibility = Visibility.Hidden;
-                        //System.Diagnostics.Debug.Write(".");
+                        System.Diagnostics.Debug.Write(". On change tout ");
                     }
                 }
                 else
