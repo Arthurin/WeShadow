@@ -169,12 +169,12 @@ namespace Microsoft.Samples.Kinect.WpfViewers
 
         private Point GetPosition2DLocation(DepthImageFrame depthFrame, SkeletonPoint skeletonPoint)
         {
-            DepthImagePoint depthPoint = depthFrame.MapFromSkeletonPoint(skeletonPoint);
+            DepthImagePoint depthPoint = this.Kinect.CoordinateMapper.MapSkeletonPointToDepthPoint(skeletonPoint, depthFrame.Format);
 
             switch (ImageType)
             {
                 case ImageType.Color:
-                    ColorImagePoint colorPoint = depthFrame.MapToColorImagePoint(depthPoint.X, depthPoint.Y, this.Kinect.ColorStream.Format);
+                    ColorImagePoint colorPoint = this.Kinect.CoordinateMapper.MapDepthPointToColorPoint(depthFrame.Format, depthPoint, this.Kinect.ColorStream.Format);
 
                     // map back to skeleton.Width & skeleton.Height
                     return new Point(
