@@ -8,5 +8,7 @@
         <my:KinectSensorChooser HorizontalAlignment="Left" Margin="62,298,0,0" Name="kinectSensorChooser1" VerticalAlignment="Top" Width="328" />
         <my:KinectDepthViewer HorizontalAlignment="Left" Margin="415,41,0,0" Name="kinectDepthViewer1" VerticalAlignment="Top" Height="240" Width="320" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
         <my:KinectColorViewer HorizontalAlignment="Left" Margin="415,298,0,0" Name="kinectColorViewer1" VerticalAlignment="Top" Height="240" Width="320" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" Loaded="kinectColorViewer1_Loaded" />
+        <Image Height="67" HorizontalAlignment="Left" Margin="299,114,0,0" Name="image2" Stretch="Fill" VerticalAlignment="Top" Width="72" Source="/WorkingWithDepthData;component/Images/bird1.png" />
+        <Image Height="67" HorizontalAlignment="Left" Margin="299,41,0,0" Name="image3" Stretch="Fill" VerticalAlignment="Top" Width="72" Source="/WorkingWithDepthData;component/Images/bird2.jpg" Visibility="Hidden" />
     </Grid>
 </Window>
