@@ -22,6 +22,82 @@ using WpfAnimatedGif;
 
 namespace WorkingWithDepthData
 {
+    struct JointSnapshot {
+        public SkeletonPoint Position;
+        public DateTime Time;
+    }
+
+    class JointMovement
+    {
+        TimeSpan MAX_TIMESPAN = new TimeSpan(0,0,0,0,1500); // 1.5 seconds
+        TimeSpan MIN_TIMESPAN = new TimeSpan(0,0,0,0,200); // 0.2 seconds
+        public LinkedList<JointSnapshot> snapshots = new LinkedList<JointSnapshot>();
+        public JointType type;
+
+        public JointMovement(JointType type)
+        {
+            this.type = type;
+        }
+
+        // update the buffer
+        public void Update(DateTime now, Skeleton skeleton)
+        {
+            if (skeleton == null || now == DateTime.MinValue)
+                return; // nothing
+            Joint joint = skeleton.Joints[type];
+            if (joint == null || joint.TrackingState != JointTrackingState.Tracked)
+            {
+                // reset when we lose the tracking
+                snapshots.Clear();
+                return;
+            }
+            if (snapshots.Count > 0)
+            {
+                TimeSpan time = now - snapshots.Last().Time;
+                if (time < MIN_TIMESPAN)
+                    return; // too soon
+            }
+            JointSnapshot snapshot = new JointSnapshot();
+            snapshot.Position = joint.Position;
+            snapshot.Time = now;
+            snapshots.AddLast(snapshot);
+        }
+
+        // get the speed of the joint
+        public double GetSpeed()
+        {
+            if (snapshots.Count == 0)
+                return 0.0; // nothing to do
+            JointSnapshot last = snapshots.Last();
+            // remove old samples
+            for ( ; ; )
+            {
+                JointSnapshot snapshot = snapshots.First();
+                TimeSpan time = last.Time - snapshot.Time;
+                if (time <= MAX_TIMESPAN)
+                    break; // ok
+                snapshots.RemoveFirst();
+            }
+            double speed = 0.0;
+            for (LinkedListNode<JointSnapshot> node = snapshots.First; node != snapshots.Last; node = node.Next)
+            {
+                JointSnapshot snapshot = node.Value;
+                TimeSpan time = last.Time - snapshot.Time;
+                double distance = Math.Sqrt(Square(snapshot.Position.X - last.Position.X)
+                    + Square(snapshot.Position.X - last.Position.Y)
+                    //+ Square(snapshot.Position.Z - last.Position.Z)
+                    );
+                speed = Math.Max(speed, distance / time.TotalSeconds);
+            }
+            return speed;
+        }
+
+        private double Square(double value)
+        {
+            return value * value;
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -29,6 +105,10 @@ namespace WorkingWithDepthData
     {
         int birdPositionX = 500;
         int birdPositionY = 50;
+
+        bool closing = false;
+        const int skeletonCount = 6;
+        JointMovement[] movements = new JointMovement[skeletonCount];
 
         public MainWindow()
         {
@@ -40,6 +120,10 @@ namespace WorkingWithDepthData
 
             System.Diagnostics.Debug.WriteLine("coucou");
 
+            for (int i = 0; i < skeletonCount; i++)
+            {
+                movements[i] = new JointMovement(JointType.ShoulderCenter);
+            }
            
             //ImageBehavior.SetAnimatedSource(birdImage, image);
         }
@@ -95,6 +179,23 @@ namespace WorkingWithDepthData
                     BitmapSource.Create(depthFrame.Width, depthFrame.Height, 
                     96, 96, PixelFormats.Bgr32, null, pixels, stride); 
 
+            }
+
+            using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
+            {
+                if (skeletonFrame != null)
+                {
+                    double speed = 0.0;
+                    DateTime now = DateTime.Now;
+                    Skeleton[] skeletonData = new Skeleton[skeletonCount];
+                    skeletonFrame.CopySkeletonDataTo(skeletonData);
+                    for (int i = 0; i < skeletonCount; i++)
+                    {
+                        movements[i].Update(now, skeletonData[i]);
+                        speed = Math.Max(speed, movements[i].GetSpeed());
+                    }
+                    textBox1.Text = speed.ToString();
+                }
             }
         }
 
@@ -225,6 +326,7 @@ namespace WorkingWithDepthData
 
         private void StopKinect(KinectSensor sensor)
         {
+            kinectSkeletonViewer1.Kinect = null;
             if (sensor != null)
             {
                 if (sensor.IsRunning)
@@ -256,6 +358,8 @@ namespace WorkingWithDepthData
             sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
 
             sensor.Start();
+
+            kinectSkeletonViewer1.Kinect = sensor;
         }
 
         private void kinectColorViewer1_Loaded(object sender, RoutedEventArgs e)
