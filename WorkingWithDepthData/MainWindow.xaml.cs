@@ -391,6 +391,11 @@ namespace WorkingWithDepthData
          */
         public void AddSparkleFromMouse(Point start, Point end, DateTime startTime)
         {
+            if (start.X == end.X && start.Y == end.Y)
+            {
+                // only generate moving sparkles
+                return;
+            }
             MovingSparkle sparkle = new MovingSparkle();
             sparkle.SetSparkle(15, 25, 1);
             sparkle.SetMovement(start.X, start.Y, (end.X - start.X) * 2.0, (end.Y - start.Y) * 2.0, startTime);
