@@ -52,14 +52,14 @@ namespace WorkingWithDepthData
             this.IsSparkling = (minSize != maxSize && time > 0.0);
         }
 
-        public void SetMovement(double x, double y, double speedX, double speedY)
+        public void SetMovement(double x, double y, double speedX, double speedY, DateTime startTime)
         {
             this.StartX = x;
             this.StartY = y;
             this.SpeedX = speedX;
             this.SpeedY = speedY;
             this.IsMoving = (Math.Abs(speedX) > 0.0 || Math.Abs(speedY) > 0.0);
-            this.StartTime = DateTime.Now;
+            this.StartTime = startTime;
         }
 
         /**
@@ -71,7 +71,7 @@ namespace WorkingWithDepthData
 
             if (IsSparkling)
             {
-                double percent = Math.Abs((time.TotalSeconds / SparkleTime) % 1.0 - 0.5) * 2.0; // [0,1] (up, down, up, down, ...)
+                double percent = 1.0 - Math.Abs((time.TotalSeconds / SparkleTime) % 1.0 - 0.5) * 2.0; // [0,1] (up, down, up, down, ...)
                 double size = (MaxSize - MinSize) * percent + MinSize;
                 Image.Width = size;
                 Image.Height = size;
@@ -91,9 +91,82 @@ namespace WorkingWithDepthData
             else
             {
                 Canvas.SetLeft(Image, StartX - Image.Width / 2);
-                Canvas.SetRight(Image, StartY - Image.Height / 2);
+                Canvas.SetTop(Image, StartY - Image.Height / 2);
             }
         }
+    }
+
+    class SparkleManager
+    {
+        LinkedList<MovingSparkle> sparkles = new LinkedList<MovingSparkle>();
+        Canvas canvas;
+        byte[] lastPixels;
+        DateTime lastNow;
+
+        public SparkleManager(Canvas canvas)
+        {
+            Debug.Assert(canvas != null);
+            this.canvas = canvas;
+        }
+
+        /**
+         * Generate new sparkles based on the pixel changes.
+         */
+        public void Generate(DateTime now, DepthImageFrame depthFrame, byte[] pixels)
+        {
+            Debug.Assert(now > lastNow);
+            Debug.Assert(pixels != null);
+            Debug.Assert(sparkles != null);
+            Debug.Assert(depthFrame.Width * depthFrame.Height * 4 == pixels.Length);
+            if (lastPixels == null)
+            {
+                // nothing to do
+                lastPixels = pixels;
+                lastNow = now;
+                return;
+            }
+            // XXX test sparkle every 3 seconds
+            if (now.Second % 3 == 0 && (now - lastNow).TotalSeconds > 1.0)
+            {
+                MovingSparkle sparkle = new MovingSparkle();
+                sparkle.SetSparkle(15, 25, 1);
+                sparkle.SetMovement(30, 30, 15, 15, now);
+                canvas.Children.Add(sparkle.Image);
+                sparkles.AddLast(sparkle);
+                sparkle.Update(now);
+                lastNow = now;
+            }
+            // TODO detect fast movement and generate sparkle based on speed and position
+        }
+
+        /**
+         * Update the position and size of all sparkles.
+         * Remove sparkles that leave the canvas.
+         */
+        public void Update(DateTime now)
+        {
+            LinkedListNode<MovingSparkle> node = sparkles.First;
+            while (node != null)
+            {
+                // update sparkle
+                MovingSparkle sparkle = node.Value;
+                sparkle.Update(now);
+                // remove sparkle if outside the canvas
+                double left = Canvas.GetLeft(sparkle.Image);
+                double top = Canvas.GetTop(sparkle.Image);
+                if (left + sparkle.Image.Width < 0 || left > canvas.ActualWidth ||
+                    top + sparkle.Image.Height < 0 || top > canvas.ActualHeight)
+                {
+                    LinkedListNode<MovingSparkle> next = node.Next;
+                    canvas.Children.Remove(sparkle.Image);
+                    sparkles.Remove(node);
+                    node = next;
+                    continue;
+                }
+                node = node.Next;
+            }
+        }
+
     }
 
     /// <summary>
@@ -105,7 +178,7 @@ namespace WorkingWithDepthData
         int birdPositionX = 500;
         int birdPositionY = 50;
 
-        MovingSparkle sparkle;
+        SparkleManager sparkleManager;
 
         public MainWindow()
         {
@@ -117,11 +190,7 @@ namespace WorkingWithDepthData
 
             System.Diagnostics.Debug.WriteLine("coucou");
 
-            sparkle = new MovingSparkle();
-            sparkle.SetSparkle(15, 25, 1);
-            sparkle.SetMovement(30, 30, 15, 15);
-            canvas.Children.Add(sparkle.Image);
-            sparkle.Update(DateTime.Now);
+            sparkleManager = new SparkleManager(canvas);
 
             //ImageBehavior.SetAnimatedSource(birdImage, image);
         }
@@ -160,6 +229,7 @@ namespace WorkingWithDepthData
         void newSensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             now = DateTime.Now;
+            sparkleManager.Update(now);
 
             using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
@@ -176,13 +246,11 @@ namespace WorkingWithDepthData
                 //create image
                 image1.Source = 
                     BitmapSource.Create(depthFrame.Width, depthFrame.Height, 
-                    96, 96, PixelFormats.Bgr32, null, pixels, stride); 
+                    96, 96, PixelFormats.Bgr32, null, pixels, stride);
 
+                sparkleManager.Generate(now, depthFrame, pixels);
             }
-
-            sparkle.Update(now);
         }
-
 
         private byte[] GenerateColoredBytes(DepthImageFrame depthFrame)
         {
