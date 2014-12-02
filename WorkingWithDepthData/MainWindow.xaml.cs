@@ -32,12 +32,19 @@ namespace WorkingWithDepthData
         int birdPositionY = 50;
 
         SparkleManager sparkleManager;
+        const int skeletonCount = 6;
+        Skeleton[] allSkeletons = new Skeleton[skeletonCount];
+        int skeletonID;
+        int frameCounter = 0;
+        int XtoReset = 320;    //x to reset bird
+        int YtoReset = 75;    //y to reset bird
+        bool fromUser = false;
 
         public MainWindow()
         {
             InitializeComponent();
             Canvas.SetLeft(this.birdStatic, 500);
-            Canvas.SetBottom(this.birdStatic, 50);
+            Canvas.SetTop(this.birdStatic, 50);
 
             this.birdFly.Visibility = Visibility.Hidden;
 
@@ -102,6 +109,18 @@ namespace WorkingWithDepthData
                     96, 96, PixelFormats.Bgr32, null, pixels, stride);
 
                 sparkleManager.Generate(now, depthFrame, pixels);
+            }
+            //Get a skeleton
+            Skeleton first = GetFirstSkeleton(e);
+            if (first == null)
+            {
+                return;
+            }
+            else
+            {
+                skeletonID = first.TrackingId;
+                tryToMoveBird(first, e, skeletonID); //study the way to work with multiple skeletons
+                //System.Diagnostics.Debug.Write("\nSkeleton Detected");
             }
         }
 
@@ -262,6 +281,91 @@ namespace WorkingWithDepthData
             sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
 
             sensor.Start();
+        }
+
+        Skeleton GetFirstSkeleton(AllFramesReadyEventArgs e)
+        {
+            using (SkeletonFrame skeletonFrameData = e.OpenSkeletonFrame())
+            {
+                if (skeletonFrameData == null)
+                {
+                    return null;
+                }
+                skeletonFrameData.CopySkeletonDataTo(allSkeletons);
+                //get the first tracked skeleton
+                Skeleton first = (from s in allSkeletons
+                                  where s.TrackingState == SkeletonTrackingState.Tracked
+                                  select s).FirstOrDefault();
+                return first;
+            }
+        }
+
+        void tryToMoveBird(Skeleton first, AllFramesReadyEventArgs e, int skeletonID)
+        {
+            using (DepthImageFrame depth = e.OpenDepthImageFrame())
+            {
+                if (depth == null ||
+                    kinectSensorChooser1.Kinect == null)
+                {
+                    return;
+                }
+
+                CoordinateMapper cm = new CoordinateMapper(kinectSensorChooser1.Kinect);
+                DepthImagePoint rightWristDepthPoint = cm.MapSkeletonPointToDepthPoint(first.Joints[JointType.WristRight].Position, DepthImageFormat.Resolution640x480Fps30);
+                DepthImagePoint rightElbowDepthPoint = cm.MapSkeletonPointToDepthPoint(first.Joints[JointType.ElbowRight].Position, DepthImageFormat.Resolution640x480Fps30);
+                DepthImagePoint rightHandDepthPoint = cm.MapSkeletonPointToDepthPoint(first.Joints[JointType.HandRight].Position, DepthImageFormat.Resolution640x480Fps30);
+
+                if (isArmHorizontal(rightWristDepthPoint, rightElbowDepthPoint))
+                {
+                    frameCounter++;
+                    //System.Diagnostics.Debug.Write("\nframeCounter = " + frameCounter);
+                    if (frameCounter >= 30)
+                    {
+                        fromUser = true;
+                        moveBirdToUser(birdHand, rightHandDepthPoint);
+                    }
+                }
+                else
+                {
+                    //System.Diagnostics.Debug.Write("\nif de RESET");
+                    if (fromUser == true)
+                    {
+                        Random rnd = new Random();
+                        XtoReset = rnd.Next(30, 610); // [x1, x2[
+                        YtoReset = rnd.Next(30, 40); // [y1, y2[
+                        fromUser = false;
+                        resetBird(birdHand);
+                    }
+                    frameCounter = 0;
+                }
+            }
+        }
+
+        private void resetBird(FrameworkElement element)
+        {
+            Canvas.SetLeft(element, XtoReset - element.Width / 2);
+            Canvas.SetTop(element, YtoReset - element.Height / 2);
+        }
+
+        private void moveBirdToUser(FrameworkElement element, DepthImagePoint point)
+        {
+            Canvas.SetLeft(element, point.X - element.Width / 2);
+            Canvas.SetTop(element, point.Y - element.Height / 2 - 25 );
+            fromUser = true;
+        }
+
+        //verify if arm is horizontal
+        private bool isArmHorizontal(DepthImagePoint wristPoint, DepthImagePoint elbowPoint)
+        {
+            double diferenceY = Math.Abs(wristPoint.Y - elbowPoint.Y);
+            if (diferenceY > 0 && diferenceY <= 20)
+            { //System.Diagnostics.Debug.Write("\nshoulder NOT MOVING "); 
+                return true;
+            }
+            else
+            { //System.Diagnostics.Debug.Write("\nshoulder MOVING "); 
+                return false;
+            }
         }
 
         bool creatingFakeSpakles = false;
@@ -573,6 +677,5 @@ namespace WorkingWithDepthData
         }
 
     }
-
 }
 
