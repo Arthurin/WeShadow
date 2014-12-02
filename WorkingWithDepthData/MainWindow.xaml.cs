@@ -102,11 +102,33 @@ namespace WorkingWithDepthData
         Canvas canvas;
         byte[] lastPixels;
         DateTime lastNow;
+        System.Windows.Controls.Image image;
 
         public SparkleManager(Canvas canvas)
         {
             Debug.Assert(canvas != null);
             this.canvas = canvas;
+            image = new System.Windows.Controls.Image
+            {
+                Width = 640,
+                Height = 480,
+            };
+            canvas.Children.Add(image);
+            Canvas.SetLeft(image, 0);
+            Canvas.SetTop(image, 0);
+        }
+
+        /**
+         * Add a fake sparkle from a mouse interaction.
+         */
+        public void AddSparkleFromMouse(Point start, Point end, DateTime startTime)
+        {
+            MovingSparkle sparkle = new MovingSparkle();
+            sparkle.SetSparkle(15, 25, 1);
+            sparkle.SetMovement(start.X, start.Y, (end.X - start.X) * 2.0, (end.Y - start.Y) * 2.0, startTime);
+            canvas.Children.Add(sparkle.Image);
+            sparkles.AddLast(sparkle);
+            sparkle.Update(startTime);
         }
 
         /**
@@ -125,6 +147,12 @@ namespace WorkingWithDepthData
                 lastNow = now;
                 return;
             }
+            if ((now - lastNow).TotalSeconds < 0.15)
+            {
+                // once per 150ms
+                return;
+            }
+            /*
             // XXX test sparkle every 3 seconds
             if (now.Second % 3 == 0 && (now - lastNow).TotalSeconds > 1.0)
             {
@@ -136,7 +164,111 @@ namespace WorkingWithDepthData
                 sparkle.Update(now);
                 lastNow = now;
             }
-            // TODO detect fast movement and generate sparkle based on speed and position
+            // TODO detect fast movement and generate sparkles based on speed and position
+            // compute changes in areas 10,8,5,4,2
+            const int CHANGE_SIZE = 5;
+            int width = depthFrame.Width / CHANGE_SIZE;
+            int height = depthFrame.Height / CHANGE_SIZE;
+            byte[,] oldCount = new byte[width, height];
+            byte[,] newCount = new byte[width, height];
+            int x = 0, y = 0;
+            for (int i = 0; i < pixels.Length; i+=4)
+            {
+                if (lastPixels[i] > 0)
+                    oldCount[x / CHANGE_SIZE, y / CHANGE_SIZE]++;
+                if (pixels[i] > 0)
+                    newCount[x / CHANGE_SIZE, y / CHANGE_SIZE]++;
+                // next
+                x++;
+                if (x == depthFrame.Width)
+                {
+                    x = 0;
+                    y++;
+                }
+            }
+            // generate test image Bgra32
+            byte[] testPixels = new byte[width * height * 4];
+            x = 0;
+            y = 0;
+            for (int i = 0; i < testPixels.Length; i += 4)
+            {
+                if (oldCount[x, y] < newCount[x, y])
+                {
+                    // 50% blue
+                    testPixels[i + 0] = 255;
+                    testPixels[i + 1] = 0;
+                    testPixels[i + 2] = 0;
+                    testPixels[i + 3] = 128;
+                }
+                else if (oldCount[x, y] > newCount[x, y])
+                {
+                    // 50% red
+                    testPixels[i + 0] = 0;
+                    testPixels[i + 1] = 0;
+                    testPixels[i + 2] = 255;
+                    testPixels[i + 3] = 128;
+                }
+
+                if (hasRadius(oldCount, newCount, x, y, 3))
+                {
+                    //Debug.WriteLine("{0} {1}", x, y);
+                }
+
+                // next
+                x++;
+                if (x == width)
+                {
+                    x = 0;
+                    y++;
+                }
+            }
+            int stride = width * 4;
+            image.Source = BitmapSource.Create(width, height,
+                    96, 96, PixelFormats.Bgra32, null, testPixels, stride);
+            */
+            lastPixels = pixels;
+            lastNow = now;
+        }
+
+        private bool hasRadius(byte[,] oldCount, byte[,] newCount, int x, int y, int radius)
+        {
+            Debug.Assert(oldCount != null);
+            Debug.Assert(newCount != null);
+            Debug.Assert(oldCount.GetLength(0) == newCount.GetLength(0));
+            Debug.Assert(oldCount.GetLength(1) == newCount.GetLength(1));
+            int width = oldCount.GetLength(0);
+            int height = oldCount.GetLength(1);
+            if (radius < 0 ||
+                x - radius < 0 || x + radius >= width ||
+                y - radius < 0 || y + radius >= height)
+                return false; // impossible
+            bool hasOld = false;
+            bool hasNew = false;
+            for (int testX = x - radius; testX <= x + radius; testX++)
+            {
+                for (int testY = y - radius; testY <= y + radius; testY++)
+                {
+                    int diff = (int)oldCount[testX, testY] - newCount[testX, testY];
+                    if (diff < 0)
+                    {
+                        hasOld = true;
+                        if (hasNew)
+                            return false; // mixed
+                    }
+                    else if (diff > 0)
+                    {
+                        hasNew = true;
+                        if (hasOld)
+                            return false; // mixed
+                    }
+                    else
+                    {
+                        return false; // never included
+                    }
+                }
+            }
+            // yup
+            return true;
         }
 
         /**
@@ -411,27 +543,29 @@ namespace WorkingWithDepthData
             sensor.Start();
         }
 
-        private void kinectColorViewer1_Loaded(object sender, RoutedEventArgs e)
+        bool creatingFakeSpakles = false;
+        Point mousePosition;
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                creatingFakeSpakles = true;
+                mousePosition = e.GetPosition(this);
+            }
         }
 
-        private void image3_ImageFailed(object sender, ExceptionRoutedEventArgs e)
+        private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                creatingFakeSpakles = false;
+                if (e.RightButton == MouseButtonState.Released)
+                {
+                    // create fake sparkle
+                    sparkleManager.AddSparkleFromMouse(mousePosition, e.GetPosition(this), now);
+                }
+            }
         }
-
-        private void kinectSensorChooser1_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void image1_ImageFailed(object sender, ExceptionRoutedEventArgs e)
-        {
-
-        } 
-
-
 
     }
 
