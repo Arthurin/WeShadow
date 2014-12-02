@@ -22,13 +22,90 @@ using WpfAnimatedGif;
 
 namespace WorkingWithDepthData
 {
+    class MovingSparkle
+    {
+        public System.Windows.Controls.Image Image;
+        public double MinSize, MaxSize, SparkleTime;
+        public double StartX, StartY, SpeedX, SpeedY;
+        bool IsSparkling, IsMoving;
+        DateTime StartTime;
+
+        public MovingSparkle()
+        {
+            Image = new System.Windows.Controls.Image
+            {
+                Source = new BitmapImage(new Uri("/WorkingWithDepthData;component/Images/estrela1.png", UriKind.Relative)),
+            };
+        }
+
+        /**
+         * Como o
+         * @param minSize Tamanho mínimo do sparkle
+         * @param maxSize Tamanho máximo do sparkle
+         * @param time Quanto demora um ciclo
+         */
+        public void SetSparkle(double minSize, double maxSize, double time)
+        {
+            this.MinSize = minSize;
+            this.MaxSize = maxSize;
+            this.SparkleTime = time;
+            this.IsSparkling = (minSize != maxSize && time > 0.0);
+        }
+
+        public void SetMovement(double x, double y, double speedX, double speedY)
+        {
+            this.StartX = x;
+            this.StartY = y;
+            this.SpeedX = speedX;
+            this.SpeedY = speedY;
+            this.IsMoving = (Math.Abs(speedX) > 0.0 || Math.Abs(speedY) > 0.0);
+            this.StartTime = DateTime.Now;
+        }
+
+        /**
+         * Update the size and position of the sparkle.
+         */
+        public void Update(DateTime now)
+        {
+            TimeSpan time = (now - StartTime);
+
+            if (IsSparkling)
+            {
+                double percent = Math.Abs((time.TotalSeconds / SparkleTime) % 1.0 - 0.5) * 2.0; // [0,1] (up, down, up, down, ...)
+                double size = (MaxSize - MinSize) * percent + MinSize;
+                Image.Width = size;
+                Image.Height = size;
+            }
+            else if (Image.Width != Image.Height)
+            {
+                double size = (Image.Width + Image.Height) / 2.0;
+                Image.Width = size;
+                Image.Height = size;
+            }
+
+            if (IsMoving)
+            {
+                Canvas.SetLeft(Image, StartX + time.TotalSeconds * SpeedX - Image.Width / 2);
+                Canvas.SetTop(Image, StartY + time.TotalSeconds * SpeedY - Image.Height / 2);
+            }
+            else
+            {
+                Canvas.SetLeft(Image, StartX - Image.Width / 2);
+                Canvas.SetRight(Image, StartY - Image.Height / 2);
+            }
+        }
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        DateTime now;
         int birdPositionX = 500;
         int birdPositionY = 50;
+
+        MovingSparkle sparkle;
 
         public MainWindow()
         {
@@ -40,7 +117,12 @@ namespace WorkingWithDepthData
 
             System.Diagnostics.Debug.WriteLine("coucou");
 
-           
+            sparkle = new MovingSparkle();
+            sparkle.SetSparkle(15, 25, 1);
+            sparkle.SetMovement(30, 30, 15, 15);
+            canvas.Children.Add(sparkle.Image);
+            sparkle.Update(DateTime.Now);
+
             //ImageBehavior.SetAnimatedSource(birdImage, image);
         }
         const float MaxDepthDistance = 4095; // max value returned
@@ -77,7 +159,8 @@ namespace WorkingWithDepthData
 
         void newSensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
-            
+            now = DateTime.Now;
+
             using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
                 if (depthFrame == null)
@@ -96,6 +179,8 @@ namespace WorkingWithDepthData
                     96, 96, PixelFormats.Bgr32, null, pixels, stride); 
 
             }
+
+            sparkle.Update(now);
         }
 
 
