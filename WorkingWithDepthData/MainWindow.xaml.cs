@@ -33,6 +33,7 @@ namespace WorkingWithDepthData
 
         DateTime flyingStart;
         Random random = new Random();
+        FlyingBird birdHandFlyingUpdater;
 
         SparkleManager sparkleManager;
         const int skeletonCount = 6;
@@ -51,7 +52,10 @@ namespace WorkingWithDepthData
 
             this.birdFly.Visibility = Visibility.Hidden;
 
-            System.Diagnostics.Debug.WriteLine("coucou");
+            birdHandFlyingUpdater = new FlyingBird(birdHandFlying);
+            birdHandFlyingUpdater.Update(DateTime.Now);
+            birdHand.Visibility = Visibility.Hidden;
+            //Debug.WriteLine("coucou");
 
             sparkleManager = new SparkleManager(canvas);
 
@@ -92,6 +96,7 @@ namespace WorkingWithDepthData
         void newSensor_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
             now = DateTime.Now;
+            birdHandFlyingUpdater.Update(now);
             sparkleManager.Update(now);
             if (birdFly.Visibility == Visibility.Visible && (now - flyingStart).TotalSeconds > 1.0)
             {
@@ -338,6 +343,9 @@ namespace WorkingWithDepthData
                     {
                         fromUser = true;
                         moveBirdToUser(birdHand, rightHandDepthPoint);
+
+                        birdHandFlying.Visibility = Visibility.Hidden;
+                        birdHand.Visibility = Visibility.Visible;
                     }
                 }
                 else
@@ -350,6 +358,9 @@ namespace WorkingWithDepthData
                         YtoReset = rnd.Next(30, 40); // [y1, y2[
                         fromUser = false;
                         resetBird(birdHand);
+
+                        birdHandFlying.Visibility = Visibility.Visible;
+                        birdHand.Visibility = Visibility.Hidden;
                     }
                     frameCounter = 0;
                 }
@@ -425,6 +436,36 @@ namespace WorkingWithDepthData
             }
         }
 
+    }
+
+    /**
+     * Bird flying around.
+     * Goes back and forth horizontally.
+     * Goes up and down in a wave motion.
+     */
+    class FlyingBird
+    {
+        Image image;
+        const double ROUND_TRIP_TIME = 25.0; // seconds
+
+        public FlyingBird(Image image)
+        {
+            this.image = image;
+        }
+
+        public void Update(DateTime now)
+        {
+            TimeSpan time = now - DateTime.MinValue;
+            double seconds = time.TotalSeconds;
+            double rawPercent = (seconds % ROUND_TRIP_TIME) / ROUND_TRIP_TIME * 2.0 - 1.0; // [-1,1) (up)
+            FlowDirection direction = (rawPercent < 0.0)? FlowDirection.LeftToRight: FlowDirection.RightToLeft;
+            double xPercent = 1.0 - Math.Abs(rawPercent); // [0,1] (up, down, up, down, ...)
+            double x = (640.0 - image.Width) * xPercent;
+            double y = 25.0 + 10.0 * Math.Sin(seconds);
+            Canvas.SetLeft(image, x);
+            Canvas.SetTop(image, y);
+            image.FlowDirection = direction;
+        }
     }
 
     class MovingSparkle

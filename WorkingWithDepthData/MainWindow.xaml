@@ -11,7 +11,8 @@
             <Image Canvas.Left="496" Canvas.Top="-12" Height="440" Name="tree" Stretch="Fill" Width="355" Source="/WorkingWithDepthData;component/Images/tree.tif" />
             <Image Height="40" HorizontalAlignment="Right" Name="birdStatic" Stretch="Fill" VerticalAlignment="Bottom" Width="40" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/animation.gif" Canvas.Left="476" Canvas.Top="80" />
           <Image Height="67" HorizontalAlignment="Left" Name="birdFly" Stretch="Fill" VerticalAlignment="Top" Width="72" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/animated1.gif" Visibility="Visible" Margin="500,42,0,0" />
-          <Image Height="55" HorizontalAlignment="Left" Name="birdHand" Stretch="Fill" VerticalAlignment="Top" Width="65" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/birdBlack.gif" Visibility="Visible" Margin="0,0,0,0" Canvas.Left="100" Canvas.Top="30" />
+          <Image Height="31" HorizontalAlignment="Left" Name="birdHand" Stretch="Fill" VerticalAlignment="Top" Width="49" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/birdBlack.gif" Visibility="Visible" Margin="0,0,0,0" Canvas.Left="100" Canvas.Top="30" />
+            <Image Canvas.Left="0" Canvas.Top="15" Height="43.4" Name="birdHandFlying" Stretch="Fill" Width="50" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/silhouette_bird_flight_by_colorofashes.gif" FlowDirection="LeftToRight" />
         </Canvas>
         <my:KinectSensorChooser Name="kinectSensorChooser1" HorizontalAlignment="Center" Width="Auto" Margin="-10,-27,10,27" VerticalAlignment="Center" />
     </Grid>
