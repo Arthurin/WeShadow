@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkingWithDepthData", "Wor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Samples.Kinect.WpfViewers", "Dependencies\KinectWpfViewers\Microsoft.Samples.Kinect.WpfViewers.csproj", "{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinectDepthSmoothing", "Dependencies\KinectDepthSmoothing\KinectDepthSmoothing.csproj", "{366759F2-99B0-4370-9E43-319D9DB16710}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,16 @@ Global
 		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4DE23893-27E7-423F-9BB6-BA21DAC2C45E}.Release|x86.ActiveCfg = Release|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Release|Any CPU.Build.0 = Release|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{366759F2-99B0-4370-9E43-319D9DB16710}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

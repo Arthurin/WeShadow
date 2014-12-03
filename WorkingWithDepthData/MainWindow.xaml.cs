@@ -18,7 +18,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Kinect;
 using System.Diagnostics;
-using WpfAnimatedGif; 
+using WpfAnimatedGif;
+using KinectDepthSmoothing;
 
 namespace WorkingWithDepthData
 {
@@ -27,19 +28,41 @@ namespace WorkingWithDepthData
     /// </summary>
     public partial class MainWindow : Window
     {
+        private bool _usaFiltering = true;
+        private FilteredSmoothing smoothingFilter = new FilteredSmoothing();
+
+        private bool _usaAverage = true;
+        private AveragedSmoothing smoothingAverage = new AveragedSmoothing();
+
+        /// <summary>
+        /// Bitmap that will hold color information
+        /// </summary>
+        private WriteableBitmap colorBitmap;
+
+        /// <summary>
+        /// Intermediate storage for the depth data received from the camera
+        /// </summary>
+        private DepthImagePixel[] depthPixels;
+
+        /// <summary>
+        /// Intermediate storage for the depth data converted to color
+        /// </summary>
+        private byte[] colorPixels;
+
+        //int birdCenterX;
+        //int birdCenterY;
         int birdPositionX = 500;
-        int birdPositionY = 50;
+        int birdPositionY = 95;
 
         public MainWindow()
         {
             InitializeComponent();
-            Canvas.SetLeft(this.birdStatic, 500);
-            Canvas.SetBottom(this.birdStatic, 50);
+            Canvas.SetLeft(this.birdStatic, birdPositionX);
+            Canvas.SetTop(this.birdStatic, birdPositionY);
+            //birdCenterX = birdPositionX + ((int)this.birdStatic.Width / 2);
+            //birdCenterY = birdPositionY + ((int)this.birdStatic.Height / 2);
 
             this.birdFly.Visibility = Visibility.Hidden;
-
-            System.Diagnostics.Debug.WriteLine("coucou");
-
            
             //ImageBehavior.SetAnimatedSource(birdImage, image);
         }
@@ -91,20 +114,122 @@ namespace WorkingWithDepthData
                 int stride = depthFrame.Width * 4;
 
                 //create image
-                image1.Source = 
-                    BitmapSource.Create(depthFrame.Width, depthFrame.Height, 
-                    96, 96, PixelFormats.Bgr32, null, pixels, stride); 
+                //image1.Source = BitmapSource.Create(depthFrame.Width, depthFrame.Height, 96, 96, PixelFormats.Bgr32, null, pixels, stride); 
 
             }
         }
 
+        /// <summary>
+        /// Event handler for Kinect sensor's DepthFrameReady event
+        /// </summary>
+        /// <param name="sender">object sending the event</param>
+        /// <param name="e">event arguments</param>
+        private void SensorDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        {
+            using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
+            {
+                if (depthFrame != null)
+                {
+                    // Copy the pixel data from the image to a temporary array
+                    depthFrame.CopyDepthImagePixelDataTo(this.depthPixels);
+
+                    if (this._usaFiltering)
+                        this.depthPixels = this.smoothingFilter.CreateFilteredDepthArray(this.depthPixels, depthFrame.Width, depthFrame.Height);
+
+                    
+                    if (this._usaAverage)
+                        this.depthPixels = this.smoothingAverage.CreateAverageDepthArray(this.depthPixels, depthFrame.Width, depthFrame.Height);
+
+                    // Get the min and max reliable depth for the current frame
+                    int minDepth = depthFrame.MinDepth;
+                    int maxDepth = depthFrame.MaxDepth;
+
+                    // Convert the depth to RGB
+                    int colorPixelIndex = 0;
+                    for (int i = 0; i < this.depthPixels.Length; ++i)
+                    {
+                        // Get the depth for this pixel
+                        short depth = depthPixels[i].Depth;
+
+                        // To convert to a byte, we're discarding the most-significant
+                        // rather than least-significant bits.
+                        // We're preserving detail, although the intensity will "wrap."
+                        // Values outside the reliable depth range are mapped to 255 (white).
+
+                        // Note: Using conditionals in this loop could degrade performance.
+                        // Consider using a lookup table instead when writing production code.
+                        // See the KinectDepthViewer class used by the KinectExplorer sample
+                        // for a lookup table example.
+
+
+                        if (depth > 0 && depth < 2500)
+                        {
+                            //we are a bit further away
+                            this.colorPixels[colorPixelIndex++] = 0;
+                            this.colorPixels[colorPixelIndex++] = 0;
+                            this.colorPixels[colorPixelIndex++] = 0;
+
+                            /*
+                            if (this.birdStatic.Visibility == Visibility.Visible && birdIntersection(x, y, this.birdStatic))
+                            {
+                                this.birdFly.Visibility = Visibility.Visible;
+                                this.birdStatic.Visibility = Visibility.Hidden;
+                                System.Diagnostics.Debug.Write("Intersection with bird");
+                            }*/
+                        }
+                        else
+                        {
+                            this.colorPixels[colorPixelIndex++] = 255;
+                            this.colorPixels[colorPixelIndex++] = 255;
+                            this.colorPixels[colorPixelIndex++] = 255;
+                        }
+
+                        /*
+                        byte intensity = (byte)255;
+                        //byte intensity = (byte)(depth >= minDepth && depth <= maxDepth ? depth : 255);
+
+                        int newMax = depth - minDepth;
+                        if (newMax > 0)
+                            intensity = (byte)(255 - (255 * newMax / (3150)));
+
+                        if (depthPixels[i].PlayerIndex == 0)
+                            // Write out blue byte
+                            this.colorPixels[colorPixelIndex++] = intensity;
+                        else
+                            this.colorPixels[colorPixelIndex++] = 255;
+
+                        // Write out green byte
+                        this.colorPixels[colorPixelIndex++] = intensity;
+
+                        // Write out red byte                        
+                        this.colorPixels[colorPixelIndex++] = intensity;*/
+
+                        // We're outputting BGR, the last byte in the 32 bits is unused so skip it
+                        // If we were outputting BGRA, we would write alpha here.
+                        ++colorPixelIndex;
+                    }
+
+                    // Write the pixel data into our bitmap
+                    this.colorBitmap.WritePixels(
+                        new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight),
+                        this.colorPixels,
+                        this.colorBitmap.PixelWidth * sizeof(int),
+                        0);
+                }
+            }
+        }
 
         private byte[] GenerateColoredBytes(DepthImageFrame depthFrame)
         {
 
             //get the raw data from kinect with the depth for every pixel
             short[] rawDepthData = new short[depthFrame.PixelDataLength];
-            depthFrame.CopyPixelDataTo(rawDepthData); 
+            depthFrame.CopyPixelDataTo(rawDepthData);
+
+            depthFrame.CopyDepthImagePixelDataTo(depthPixels);
+
+           if (this._usaFiltering)
+               depthPixels = this.smoothingFilter.CreateFilteredDepthArray(depthPixels, depthFrame.Width, depthFrame.Height);
 
             //use depthFrame to create the image to display on-screen
             //depthFrame contains color information for all pixels in image
@@ -157,11 +282,11 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + RedIndex] = 0;
 
 
-                    if (this.birdStatic.Visibility == Visibility.Visible && isNearPoint(x, y, birdPositionX, birdPositionY))
+                    if (this.birdStatic.Visibility == Visibility.Visible && birdIntersection(x, y, this.birdStatic))
                     {
                         this.birdFly.Visibility = Visibility.Visible;
                         this.birdStatic.Visibility = Visibility.Hidden;
-                        System.Diagnostics.Debug.Write(". On change tout ");
+                        System.Diagnostics.Debug.Write("Intersection with bird");
                     }
                 }
                 else
@@ -172,6 +297,14 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + RedIndex] = 255;
                 }
 
+                /*
+                // color the touch area detection
+                if (birdIntersection(x, y, this.birdStatic))
+                {
+                    pixels[colorIndex + BlueIndex] = 0;
+                    pixels[colorIndex + GreenIndex] = 0;
+                    pixels[colorIndex + RedIndex] = 255;
+                }*/
 
                 //////equal coloring for monochromatic histogram
                 //byte intensity = CalculateIntensityFromDepth(depth);
@@ -198,7 +331,6 @@ namespace WorkingWithDepthData
 
 
             }
-          
 
             return pixels;
         }
@@ -207,7 +339,13 @@ namespace WorkingWithDepthData
         {
             //System.Diagnostics.Debug.WriteLine("Point detection: ");
             //System.Diagnostics.Debug.WriteLine(p);
-            return (pointPositionX - 80 <= x && x <= pointPositionX + 80) && (pointPositionY - 80 <= y && y <= pointPositionY + 80);
+            return (pointPositionX - 40 <= x && x <= pointPositionX + 40) && (pointPositionY - 40 <= y && y <= pointPositionY + 40);
+        }
+
+        private bool birdIntersection(int x, int y, Image img)
+        {
+            // how to get the position of the image ?
+            return ((x >= birdPositionX && x <= birdPositionX + img.Width) && (y >= birdPositionY && y <= birdPositionY + img.Height));
         }
 
 
@@ -250,10 +388,28 @@ namespace WorkingWithDepthData
 
             //turn on features that you need
             sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-            sensor.SkeletonStream.Enable();
+            //sensor.SkeletonStream.Enable();
 
             //sign up for events if you want to get at API directly
-            sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
+            //sensor.AllFramesReady += new EventHandler<AllFramesReadyEventArgs>(newSensor_AllFramesReady);
+
+            // Allocate space to put the depth pixels we'll receive
+            this.depthPixels = new DepthImagePixel[sensor.DepthStream.FramePixelDataLength];
+
+            // Allocate space to put the color pixels we'll create
+            this.colorPixels = new byte[sensor.DepthStream.FramePixelDataLength * sizeof(int)];
+
+            // This is the bitmap we'll display on-screen
+            this.colorBitmap = new WriteableBitmap(sensor.DepthStream.FrameWidth, sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
+
+            // Set the image we display to point to the bitmap where we'll put the image data
+            this.Image.Source = this.colorBitmap;
+
+            // Turn on to get player masks
+            sensor.SkeletonStream.Enable();
+
+            // Add an event handler to be called whenever there is new depth frame data
+            sensor.DepthFrameReady += this.SensorDepthFrameReady;
 
             sensor.Start();
         }

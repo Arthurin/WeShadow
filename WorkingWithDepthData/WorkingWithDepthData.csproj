@@ -113,6 +113,33 @@
   <ItemGroup>
     <Resource Include="Images\animated1.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tree.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tree1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tree_transparent2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tree_transparent3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dependencies\KinectDepthSmoothing\KinectDepthSmoothing.csproj">
+      <Project>{366759F2-99B0-4370-9E43-319D9DB16710}</Project>
+      <Name>KinectDepthSmoothing</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pigeonNotFlying.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pigeonNotFlying1.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pigeon1.gif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
