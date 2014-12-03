@@ -392,6 +392,24 @@ namespace WorkingWithDepthData
             }
         }
 
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F11)
+            {
+                // Change between normal mode and  (fake) full screen mode
+                if (WindowState == WindowState.Maximized)
+                {
+                    WindowState = WindowState.Normal;
+                    WindowStyle = WindowStyle.SingleBorderWindow;
+                }
+                else
+                {
+                    WindowState = WindowState.Maximized;
+                    WindowStyle = WindowStyle.None;
+                }
+            }
+        }
+
     }
 
     class MovingSparkle
