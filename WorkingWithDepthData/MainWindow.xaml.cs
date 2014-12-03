@@ -28,8 +28,8 @@ namespace WorkingWithDepthData
     public partial class MainWindow : Window
     {
         DateTime now;
-        int birdPositionX = 500;
-        int birdPositionY = 50;
+        int birdPositionX = 476;
+        int birdPositionY = 80;
 
         DateTime flyingStart;
         Random random = new Random();
@@ -200,7 +200,7 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + RedIndex] = 0;
 
 
-                    if (this.birdStatic.Visibility == Visibility.Visible && isNearPoint(x, y, birdPositionX, birdPositionY))
+                    if (this.birdStatic.Visibility == Visibility.Visible && birdIntersection(x, y, this.birdStatic))
                     {
                         this.birdFly.Visibility = Visibility.Visible;
                         this.birdStatic.Visibility = Visibility.Hidden;
@@ -217,6 +217,15 @@ namespace WorkingWithDepthData
                     pixels[colorIndex + RedIndex] = 255;
                 }
 
+
+                /*
+                 // color the touch area detection
+                if (birdIntersection(x, y, this.birdStatic))
+                {
+                    pixels[colorIndex + BlueIndex] = 0;
+                    pixels[colorIndex + GreenIndex] = 0;
+                    pixels[colorIndex + RedIndex] = 255;
+               }*/
 
                 //////equal coloring for monochromatic histogram
                 //byte intensity = CalculateIntensityFromDepth(depth);
@@ -254,6 +263,13 @@ namespace WorkingWithDepthData
             //System.Diagnostics.Debug.WriteLine(p);
             return (pointPositionX - 80 <= x && x <= pointPositionX + 80) && (pointPositionY - 80 <= y && y <= pointPositionY + 80);
         }
+
+        private bool birdIntersection(int x, int y, Image img)
+       {
+          // how to get the position of the image ?
+          return ((x >= birdPositionX && x <= birdPositionX + img.Width) && (y >= birdPositionY && y <= birdPositionY + img.Height));
+         }
+ 
 
 
         public static byte CalculateIntensityFromDepth(int distance)
