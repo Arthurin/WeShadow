@@ -6,7 +6,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com" Width="640" Height="480" SizeToContent="WidthAndHeight" MouseDown="Window_MouseDown" MouseUp="Window_MouseUp" KeyDown="Window_KeyDown">
     <Grid Height="480" Width="640" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image HorizontalAlignment="Center" Name="image1" Stretch="None" VerticalAlignment="Center" Width="640" Height="480" Margin="0" />
-        <my:KinectSkeletonViewer Canvas.Left="0" Canvas.Top="0" Name="kinectSkeletonViewer1" Height="480" Width="640" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" />
+        <!--my:KinectSkeletonViewer Canvas.Left="0" Canvas.Top="0" Name="kinectSkeletonViewer1" Height="480" Width="640" Kinect="{Binding ElementName=kinectSensorChooser1, Path=Kinect}" /-->
         <Canvas x:Name="canvas">
             <Image Canvas.Left="496" Canvas.Top="-12" Height="440" Name="tree" Stretch="Fill" Width="355" Source="/WorkingWithDepthData;component/Images/tree.tif" />
             <Image Height="40" HorizontalAlignment="Right" Name="birdStatic" Stretch="Fill" VerticalAlignment="Bottom" Width="40" gif:ImageBehavior.AnimatedSource="/WorkingWithDepthData;component/Images/animation.gif" Canvas.Left="476" Canvas.Top="80" />
