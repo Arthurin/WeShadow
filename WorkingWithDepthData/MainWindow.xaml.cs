@@ -46,8 +46,8 @@ namespace WorkingWithDepthData
         public MainWindow()
         {
             InitializeComponent();
-            Canvas.SetLeft(this.birdStatic, 500);
-            Canvas.SetTop(this.birdStatic, 50);
+            //Canvas.SetLeft(this.birdStatic, 500);
+            //Canvas.SetTop(this.birdStatic, 50);
 
             this.birdFly.Visibility = Visibility.Hidden;
 
