@@ -31,6 +31,9 @@ namespace WorkingWithDepthData
         int birdPositionX = 500;
         int birdPositionY = 50;
 
+        DateTime flyingStart;
+        Random random = new Random();
+
         SparkleManager sparkleManager;
         const int skeletonCount = 6;
         Skeleton[] allSkeletons = new Skeleton[skeletonCount];
@@ -90,6 +93,16 @@ namespace WorkingWithDepthData
         {
             now = DateTime.Now;
             sparkleManager.Update(now);
+            if (birdFly.Visibility == Visibility.Visible && (now - flyingStart).TotalSeconds > 1.0)
+            {
+                // maybe stop flying (15%)
+                if (random.NextDouble() < 0.15)
+                {
+                    birdFly.Visibility = Visibility.Hidden;
+                    birdStatic.Visibility = Visibility.Visible;
+                }
+                flyingStart = now;
+            }
 
             using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
             {
@@ -186,7 +199,9 @@ namespace WorkingWithDepthData
                     {
                         this.birdFly.Visibility = Visibility.Visible;
                         this.birdStatic.Visibility = Visibility.Hidden;
-                        System.Diagnostics.Debug.Write(". On change tout ");
+                        flyingStart = DateTime.Now;
+                        // TODO start in the first frame
+                        //Debug.Write(". On change tout ");
                     }
                 }
                 else
