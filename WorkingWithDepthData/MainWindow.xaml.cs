@@ -31,7 +31,7 @@ namespace WorkingWithDepthData
         int birdPositionX = 476;
         int birdPositionY = 80;
 
-        Image flyingImage;
+        Image[] flyingImages = new Image[3];
         DateTime flyingStart;
         double flyingSeconds = 4.0;
         Random random = new Random();
@@ -101,9 +101,15 @@ namespace WorkingWithDepthData
             if (birdStatic.Visibility == Visibility.Hidden && (now - flyingStart).TotalSeconds > flyingSeconds)
             {
                 // tree bird - stop flying
-                canvas.Children.Remove(flyingImage);
-                flyingImage = null;
+                canvas.Children.Remove(flyingImages[0]);
+                canvas.Children.Remove(flyingImages[1]);
+                canvas.Children.Remove(flyingImages[2]);
+                flyingImages[0] = null;
+                flyingImages[1] = null;
+                flyingImages[2] = null;
                 birdStatic.Visibility = Visibility.Visible;
+                birdStatic2.Visibility = Visibility.Visible;
+                birdStatic3.Visibility = Visibility.Visible;
                 flyingStart = now;
             }
 
@@ -201,20 +207,46 @@ namespace WorkingWithDepthData
                     if (this.birdStatic.Visibility == Visibility.Visible && birdIntersection(x, y, this.birdStatic))
                     {
                         // tree bird - start flying
-                        flyingImage = new System.Windows.Controls.Image
-                        {
-                            Height = 67,
-                            Width = 72
-                        };
                         var gif = new BitmapImage();
                         gif.BeginInit();
                         gif.UriSource = new Uri("/WorkingWithDepthData;component/Images/animated1.gif", UriKind.Relative);
                         gif.EndInit();
-                        ImageBehavior.SetAnimatedSource(flyingImage, gif);
-                        canvas.Children.Add(flyingImage);
-                        Canvas.SetLeft(flyingImage, 500);
-                        Canvas.SetTop(flyingImage,42);
+
+                        int offLeft = 24;
+                        int offTop = -38;
+
+                        flyingImages[0] = new System.Windows.Controls.Image
+                        {
+                            Height = 67,
+                            Width = 72
+                        };
+                        ImageBehavior.SetAnimatedSource(flyingImages[0], gif);
+                        canvas.Children.Add(flyingImages[0]);
+                        Canvas.SetLeft(flyingImages[0], Canvas.GetLeft(birdStatic)+offLeft);
+                        Canvas.SetTop(flyingImages[0], Canvas.GetTop(birdStatic)+offTop);
                         this.birdStatic.Visibility = Visibility.Hidden;
+
+                        flyingImages[1] = new System.Windows.Controls.Image
+                        {
+                            Height = 67,
+                            Width = 72
+                        };
+                        ImageBehavior.SetAnimatedSource(flyingImages[1], gif);
+                        canvas.Children.Add(flyingImages[1]);
+                        Canvas.SetLeft(flyingImages[1], Canvas.GetLeft(birdStatic2)+offLeft);
+                        Canvas.SetTop(flyingImages[1], Canvas.GetTop(birdStatic2)+offTop);
+                        this.birdStatic2.Visibility = Visibility.Hidden;
+
+                        flyingImages[2] = new System.Windows.Controls.Image
+                        {
+                            Height = 67,
+                            Width = 72
+                        };
+                        ImageBehavior.SetAnimatedSource(flyingImages[2], gif);
+                        canvas.Children.Add(flyingImages[2]);
+                        Canvas.SetLeft(flyingImages[2], Canvas.GetLeft(birdStatic3)+offLeft);
+                        Canvas.SetTop(flyingImages[2], Canvas.GetTop(birdStatic3)+offTop);
+                        this.birdStatic3.Visibility = Visibility.Hidden;
                         flyingStart = DateTime.Now;
                     }
                 }
