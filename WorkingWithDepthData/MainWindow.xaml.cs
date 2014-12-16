@@ -627,7 +627,7 @@ namespace WorkingWithDepthData
          */
         public void AddSparkleFromMouse(Point start, Point end, DateTime startTime)
         {
-            if (start.X == end.X && start.Y == end.Y)
+            if (Math.Abs(start.X - end.X) <= 5 && Math.Abs(start.Y - end.Y) <= 5)
             {
                 // only generate moving sparkles
                 return;
