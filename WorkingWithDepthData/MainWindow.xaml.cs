@@ -486,8 +486,8 @@ namespace WorkingWithDepthData
             double rawPercent = (seconds % ROUND_TRIP_TIME) / ROUND_TRIP_TIME * 2.0 - 1.0; // [-1,1) (up)
             FlowDirection direction = (rawPercent < 0.0)? FlowDirection.LeftToRight: FlowDirection.RightToLeft;
             double xPercent = 1.0 - Math.Abs(rawPercent); // [0,1] (up, down, up, down, ...)
-            double x = (640.0 - image.Width) * xPercent;
-            double y = 25.0 + 10.0 * Math.Sin(seconds);
+            double x = (740.0 - image.Width) * xPercent - 50.0;
+            double y = 125.0 + (75.0 * Math.Sin(seconds));
             Canvas.SetLeft(image, x);
             Canvas.SetTop(image, y);
             image.FlowDirection = direction;
