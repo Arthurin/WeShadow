@@ -31,7 +31,9 @@ namespace WorkingWithDepthData
         int birdPositionX = 476;
         int birdPositionY = 80;
 
+        Image flyingImage;
         DateTime flyingStart;
+        double flyingSeconds = 4.0;
         Random random = new Random();
         FlyingBird birdHandFlyingUpdater;
 
@@ -49,8 +51,6 @@ namespace WorkingWithDepthData
             InitializeComponent();
             //Canvas.SetLeft(this.birdStatic, 500);
             //Canvas.SetTop(this.birdStatic, 50);
-
-            this.birdFly.Visibility = Visibility.Hidden;
 
             birdHandFlyingUpdater = new FlyingBird(birdHandFlying);
             birdHandFlyingUpdater.Update(DateTime.Now);
@@ -98,14 +98,12 @@ namespace WorkingWithDepthData
             now = DateTime.Now;
             birdHandFlyingUpdater.Update(now);
             sparkleManager.Update(now);
-            if (birdFly.Visibility == Visibility.Visible && (now - flyingStart).TotalSeconds > 1.0)
+            if (birdStatic.Visibility == Visibility.Hidden && (now - flyingStart).TotalSeconds > flyingSeconds)
             {
-                // maybe stop flying (15%)
-                if (random.NextDouble() < 0.15)
-                {
-                    birdFly.Visibility = Visibility.Hidden;
-                    birdStatic.Visibility = Visibility.Visible;
-                }
+                // tree bird - stop flying
+                canvas.Children.Remove(flyingImage);
+                flyingImage = null;
+                birdStatic.Visibility = Visibility.Visible;
                 flyingStart = now;
             }
 
@@ -202,11 +200,22 @@ namespace WorkingWithDepthData
 
                     if (this.birdStatic.Visibility == Visibility.Visible && birdIntersection(x, y, this.birdStatic))
                     {
-                        this.birdFly.Visibility = Visibility.Visible;
+                        // tree bird - start flying
+                        flyingImage = new System.Windows.Controls.Image
+                        {
+                            Height = 67,
+                            Width = 72
+                        };
+                        var gif = new BitmapImage();
+                        gif.BeginInit();
+                        gif.UriSource = new Uri("/WorkingWithDepthData;component/Images/animated1.gif", UriKind.Relative);
+                        gif.EndInit();
+                        ImageBehavior.SetAnimatedSource(flyingImage, gif);
+                        canvas.Children.Add(flyingImage);
+                        Canvas.SetLeft(flyingImage, 500);
+                        Canvas.SetTop(flyingImage,42);
                         this.birdStatic.Visibility = Visibility.Hidden;
                         flyingStart = DateTime.Now;
-                        // TODO start in the first frame
-                        //Debug.Write(". On change tout ");
                     }
                 }
                 else
@@ -451,6 +460,7 @@ namespace WorkingWithDepthData
                 }
             }
         }
+
 
     }
 
